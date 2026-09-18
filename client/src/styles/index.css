@@ -1,0 +1,356 @@
+@import 'tailwindcss';
+
+/* Class-based dark mode: <html class="dark"> */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ─── Brand tokens ───────────────────────────────────────────────────────── */
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
+  --color-primary-950: #172554;
+
+  --radius-xl: 0.875rem;
+  --radius-2xl: 1.125rem;
+
+  --shadow-card: 0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.06);
+  --shadow-card-hover: 0 4px 6px -1px rgb(15 23 42 / 0.08), 0 10px 20px -6px rgb(37 99 235 / 0.12);
+  --shadow-glow: 0 0 0 1px rgb(37 99 235 / 0.15), 0 20px 50px -20px rgb(37 99 235 / 0.45);
+
+  --animate-fade-in: fade-in 0.25s ease-out both;
+  --animate-slide-up: slide-up 0.3s ease-out both;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+/* ─── Semantic surface tokens (switch with .dark) ────────────────────────── */
+:root {
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --surface-2: #f1f5f9;
+  --surface-3: #e2e8f0;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --text: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-faint: #94a3b8;
+  --ring: #2563eb;
+  --success: #059669;
+  --success-bg: #ecfdf5;
+  --warning: #d97706;
+  --warning-bg: #fffbeb;
+  --danger: #dc2626;
+  --danger-bg: #fef2f2;
+  --info: #2563eb;
+  --info-bg: #eff6ff;
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #0b1120;
+  --surface: #0f172a;
+  --surface-2: #162032;
+  --surface-3: #1e293b;
+  --border: #1e293b;
+  --border-strong: #334155;
+  --text: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-faint: #64748b;
+  --ring: #60a5fa;
+  --success: #34d399;
+  --success-bg: rgb(16 185 129 / 0.12);
+  --warning: #fbbf24;
+  --warning-bg: rgb(245 158 11 / 0.12);
+  --danger: #f87171;
+  --danger-bg: rgb(239 68 68 / 0.12);
+  --info: #60a5fa;
+  --info-bg: rgb(59 130 246 / 0.12);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text: var(--text);
+  --color-text-secondary: var(--text-secondary);
+  --color-muted: var(--text-muted);
+  --color-faint: var(--text-faint);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --color-info: var(--info);
+  --color-info-bg: var(--info-bg);
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────────── */
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  ::selection {
+    background-color: var(--color-primary-600);
+    color: white;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  * {
+    border-color: var(--border);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ─── Utilities ──────────────────────────────────────────────────────────── */
+@utility glass {
+  background-color: color-mix(in srgb, var(--surface) 72%, transparent);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+}
+
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+@utility text-balance {
+  text-wrap: balance;
+}
+
+@utility gradient-text {
+  background: linear-gradient(120deg, var(--color-primary-600), #7c3aed);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ─── Chart tokens (validated with the dataviz palette checker, light + dark) ── */
+:root {
+  --chart-1: #2563eb; /* brand blue     */
+  --chart-2: #eb6834; /* orange         */
+  --chart-3: #1baf7a; /* aqua           */
+  --chart-4: #eda100; /* yellow         */
+  --chart-5: #e87ba4; /* magenta        */
+  --chart-6: #4a3aa7; /* violet         */
+  --chart-7: #e34948; /* red            */
+  --chart-grid: #e2e8f0;
+  --chart-axis: #64748b;
+}
+.dark {
+  --chart-1: #3b82f6;
+  --chart-2: #d95926;
+  --chart-3: #199e70;
+  --chart-4: #c98500;
+  --chart-5: #d55181;
+  --chart-6: #9085e9;
+  --chart-7: #e66767;
+  --chart-grid: #1e293b;
+  --chart-axis: #94a3b8;
+}
+
+/* ─── Premium backgrounds & motion ───────────────────────────────────────── */
+@theme {
+  --animate-float: float 14s ease-in-out infinite;
+  --animate-float-slow: float 22s ease-in-out infinite;
+  --animate-gradient-x: gradient-x 8s ease infinite;
+  --animate-shimmer: shimmer 2.2s linear infinite;
+  --animate-pulse-soft: pulse-soft 3s ease-in-out infinite;
+
+  @keyframes float {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    33% { transform: translate3d(3%, -4%, 0) scale(1.04); }
+    66% { transform: translate3d(-2%, 3%, 0) scale(0.98); }
+  }
+  @keyframes gradient-x {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  @keyframes shimmer {
+    from { background-position: -200% 0; }
+    to { background-position: 200% 0; }
+  }
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 0.9; }
+  }
+}
+
+/* Aurora / mesh backdrop: layered radial gradients + a faint grid. */
+@utility bg-mesh {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(60% 45% at 12% 8%, color-mix(in srgb, var(--color-primary-500) 22%, transparent), transparent 70%),
+    radial-gradient(50% 40% at 88% 12%, color-mix(in srgb, #7c3aed 18%, transparent), transparent 70%),
+    radial-gradient(70% 50% at 50% 100%, color-mix(in srgb, #0ea5e9 12%, transparent), transparent 70%);
+}
+.dark .bg-mesh {
+  background-image:
+    radial-gradient(60% 45% at 12% 8%, color-mix(in srgb, var(--color-primary-500) 28%, transparent), transparent 70%),
+    radial-gradient(50% 40% at 88% 12%, color-mix(in srgb, #7c3aed 26%, transparent), transparent 70%),
+    radial-gradient(70% 50% at 50% 100%, color-mix(in srgb, #0ea5e9 14%, transparent), transparent 70%);
+}
+
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--text) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--text) 5%, transparent) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 40%, transparent 100%);
+}
+
+/* Blurred glow blob — position with utilities, animate with animate-float. */
+@utility glow-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  opacity: 0.55;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* Animated gradient text for hero headings. */
+@utility gradient-text-animated {
+  background: linear-gradient(110deg, var(--color-primary-600), #7c3aed, #0ea5e9, var(--color-primary-600));
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradient-x 8s ease infinite;
+}
+.dark .gradient-text-animated {
+  background-image: linear-gradient(110deg, #60a5fa, #a78bfa, #38bdf8, #60a5fa);
+}
+
+/* Premium gradient button surface. */
+@utility btn-gradient {
+  background-image: linear-gradient(135deg, var(--color-primary-600), #4f46e5 55%, #7c3aed);
+  background-size: 160% 160%;
+  color: white;
+  box-shadow: 0 8px 24px -8px rgb(37 99 235 / 0.55);
+  transition: background-position 0.4s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+.btn-gradient:hover { background-position: 100% 50%; box-shadow: 0 12px 30px -8px rgb(79 70 229 / 0.6); }
+.btn-gradient:active { transform: scale(0.98); }
+
+/* Elevated glass card used in hero / demo sections. */
+@utility glass-card {
+  background-color: color-mix(in srgb, var(--surface) 78%, transparent);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid color-mix(in srgb, var(--border-strong) 60%, transparent);
+  box-shadow: 0 1px 0 0 color-mix(in srgb, white 40%, transparent) inset, var(--shadow-card);
+}
+
+/* Table row hover without layout shift. */
+@utility row-hover {
+  transition: background-color 0.15s ease;
+}
+.row-hover:hover { background-color: var(--surface-2); }
+
+@media (prefers-reduced-motion: reduce) {
+  .gradient-text-animated, .animate-float, .animate-float-slow, .animate-gradient-x, .animate-shimmer, .animate-pulse-soft {
+    animation: none !important;
+  }
+}
+
+/* ─── Admin console theme: dark black + dark violet, applied per subtree ─── */
+.admin-theme {
+  --bg: #08070d;
+  --surface: #100e1a;
+  --surface-2: #171428;
+  --surface-3: #211c36;
+  --border: #221d3a;
+  --border-strong: #36305a;
+  --text: #f3f1fb;
+  --text-secondary: #cfc9e6;
+  --text-muted: #9a92bd;
+  --text-faint: #6b6390;
+  --ring: #a78bfa;
+  --success: #34d399;
+  --success-bg: rgb(16 185 129 / 0.12);
+  --warning: #fbbf24;
+  --warning-bg: rgb(245 158 11 / 0.12);
+  --danger: #fb7185;
+  --danger-bg: rgb(244 63 94 / 0.14);
+  --info: #a78bfa;
+  --info-bg: rgb(139 92 246 / 0.14);
+  /* Re-point the brand scale to violet inside the console */
+  --color-primary-50: #f5f3ff;
+  --color-primary-100: #ede9fe;
+  --color-primary-200: #ddd6fe;
+  --color-primary-300: #c4b5fd;
+  --color-primary-400: #a78bfa;
+  --color-primary-500: #8b5cf6;
+  --color-primary-600: #7c3aed;
+  --color-primary-700: #6d28d9;
+  --color-primary-800: #5b21b6;
+  --color-primary-900: #4c1d95;
+  --color-primary-950: #2e1065;
+  --chart-1: #a78bfa;
+  --chart-grid: #221d3a;
+  --chart-axis: #9a92bd;
+  --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.4), 0 1px 3px 0 rgb(0 0 0 / 0.5);
+  --shadow-card-hover: 0 8px 24px -8px rgb(124 58 237 / 0.35);
+  --shadow-glow: 0 0 0 1px rgb(139 92 246 / 0.25), 0 20px 50px -20px rgb(139 92 246 / 0.55);
+  color-scheme: dark;
+  background-color: var(--bg);
+  color: var(--text);
+}
+.admin-theme .bg-mesh {
+  background-image:
+    radial-gradient(60% 45% at 10% 0%, rgb(124 58 237 / 0.28), transparent 70%),
+    radial-gradient(50% 40% at 90% 10%, rgb(37 99 235 / 0.18), transparent 70%),
+    radial-gradient(70% 50% at 50% 100%, rgb(139 92 246 / 0.10), transparent 70%);
+}
+.admin-theme .glass {
+  background-color: color-mix(in srgb, #100e1a 78%, transparent);
+}
+.admin-theme .glass-card {
+  background-color: color-mix(in srgb, #100e1a 84%, transparent);
+  border-color: color-mix(in srgb, #36305a 70%, transparent);
+}
+.admin-theme .btn-gradient {
+  background-image: linear-gradient(135deg, #7c3aed, #6d28d9 55%, #2563eb);
+  box-shadow: 0 8px 24px -8px rgb(124 58 237 / 0.6);
+}
+.admin-theme ::selection { background-color: #7c3aed; }

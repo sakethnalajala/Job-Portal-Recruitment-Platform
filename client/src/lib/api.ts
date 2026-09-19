@@ -2,7 +2,22 @@ import axios, { AxiosError, type AxiosRequestConfig, type InternalAxiosRequestCo
 import { tokenStore } from './auth-token';
 import type { ApiErrorBody, ApiSuccess, SessionPayload } from '@/types/api';
 
-export const API_URL = import.meta.env.VITE_API_URL ?? '/api/v1';
+/**
+ * Every request path in the app is relative to the API prefix (`/jobs`, `/auth/login`, …),
+ * so the base URL must end in `/api/v1`. Accepts the recommended relative form (`/api/v1`,
+ * same-origin via the Vite proxy / Vercel rewrite) as well as an absolute host with or
+ * without the prefix, so a bare `https://api.example.com` cannot produce `/jobs` (404) and
+ * `https://api.example.com/api/v1/` cannot produce `/api/v1//jobs`.
+ */
+export function normalizeApiUrl(raw: string | undefined): string {
+  const value = (raw ?? '').trim().replace(/\/+$/, '');
+  if (!value) return '/api/v1';
+  if (/\/api\/v\d+$/.test(value)) return value;
+  if (/\/api$/.test(value)) return `${value}/v1`;
+  return `${value}/api/v1`;
+}
+
+export const API_URL = normalizeApiUrl(import.meta.env.VITE_API_URL);
 
 export const api = axios.create({
   baseURL: API_URL,

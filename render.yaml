@@ -26,8 +26,8 @@ services:
         value: /api/v1
       - key: LOG_LEVEL
         value: info
-      - key: CLIENT_URL
-        sync: false              # your Vercel URL, e.g. https://talentbridge.vercel.app (CORS + email links)
+      - key: CLIENT_URL           # the Vercel site: CORS allow-list + links in emails
+        value: https://job-portal-recruitment-platform.vercel.app
       - key: MONGODB_URI
         sync: false
       - key: JWT_ACCESS_SECRET

@@ -29,6 +29,7 @@ async function main(): Promise<void> {
   startReminderScheduler();
   server.listen(env.PORT, () => {
     logger.info(`[server] ${env.NODE_ENV} API listening on http://localhost:${env.PORT}${env.API_PREFIX}`);
+    logger.info(`[cors] allowed origins: ${env.corsOrigins.join(', ')} (CLIENT_URL=${env.CLIENT_URL})`);
     if (!env.cloudinaryConfigured) {
       logger.warn('[storage] Cloudinary is not configured — file uploads will return 503');
     }

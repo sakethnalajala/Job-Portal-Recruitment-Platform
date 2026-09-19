@@ -374,6 +374,16 @@ describe('error envelope', () => {
     const res = await request(app()).get(`${API}/health`).set('Origin', 'http://localhost:5173');
     expect(res.status).toBe(200);
     expect(res.headers['access-control-allow-origin']).toBe('http://localhost:5173');
+  });
+
+  it('matches origins case-insensitively and ignores trailing slashes / paths in the allow-list', async () => {
+    const { normalizeOrigin } = await import('../src/config/env');
+    expect(normalizeOrigin('https://Job-Portal.vercel.app/')).toBe('https://job-portal.vercel.app');
+    expect(normalizeOrigin('https://job-portal.vercel.app/api/v1')).toBe('https://job-portal.vercel.app');
+    expect(normalizeOrigin(' http://localhost:5173 ')).toBe('http://localhost:5173');
+    const res = await request(app()).post(`${API}/auth/login`).set('Origin', 'HTTP://LOCALHOST:5173').send({ email: 'nobody@example.com', password: 'Nope@12345' });
+    expect(res.status).not.toBe(403);
+    expect(res.body.error?.code).not.toBe('CORS_BLOCKED');
     expect(res.headers['access-control-allow-credentials']).toBe('true');
   });
 

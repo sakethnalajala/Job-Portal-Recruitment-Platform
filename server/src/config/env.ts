@@ -13,7 +13,11 @@ const envSchema = z
 
     MONGODB_URI: z.string().min(1, 'MONGODB_URI is required'),
 
-    CLIENT_URL: z.string().url().default('http://localhost:5173'),
+    // Public URL of the frontend: CORS allow-list + absolute links in emails.
+    // Defaults to the Vite dev server locally and to the production Vercel site in
+    // production, so a Render service works without a dashboard change; override
+    // with CLIENT_URL when the frontend moves (custom domain, another host, ...).
+    CLIENT_URL: z.string().url().optional(),
     // Comma-separated list of extra allowed origins (e.g. Vercel preview deployments)
     CORS_EXTRA_ORIGINS: z.string().optional(),
 
@@ -79,17 +83,33 @@ if (!parsed.success) {
   process.exit(1);
 }
 
+export const PRODUCTION_CLIENT_URL = 'https://job-portal-recruitment-platform.vercel.app';
+const DEV_CLIENT_URL = 'http://localhost:5173';
+
+/** Browsers send `Origin` as scheme://host[:port] with no path or trailing slash; compare on that form. */
+export function normalizeOrigin(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+  try {
+    return new URL(trimmed).origin.toLowerCase();
+  } catch {
+    return trimmed.replace(/\/+$/, '').toLowerCase();
+  }
+}
+const uniqueOrigins = (values: string[]) => [...new Set(values.map(normalizeOrigin).filter(Boolean))];
+
+const resolvedClientUrl = (parsed.data.CLIENT_URL ?? (parsed.data.NODE_ENV === 'production' ? PRODUCTION_CLIENT_URL : DEV_CLIENT_URL)).replace(/\/+$/, '');
+
 export const env = {
   ...parsed.data,
+  CLIENT_URL: resolvedClientUrl,
   isProd: parsed.data.NODE_ENV === 'production',
   isDev: parsed.data.NODE_ENV === 'development',
   isTest: parsed.data.NODE_ENV === 'test',
-  corsOrigins: [
-    parsed.data.CLIENT_URL,
-    ...(parsed.data.CORS_EXTRA_ORIGINS?.split(',')
-      .map((o) => o.trim())
-      .filter(Boolean) ?? []),
-  ],
+  corsOrigins: uniqueOrigins([
+    resolvedClientUrl,
+    ...(parsed.data.CORS_EXTRA_ORIGINS?.split(',') ?? []),
+  ]),
   cloudinaryConfigured: Boolean(
     parsed.data.CLOUDINARY_CLOUD_NAME &&
       parsed.data.CLOUDINARY_API_KEY &&

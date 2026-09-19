@@ -4,7 +4,7 @@ import cors from 'cors';
 import hpp from 'hpp';
 import cookieParser from 'cookie-parser';
 import pinoHttp from 'pino-http';
-import { env } from './config/env';
+import { env, normalizeOrigin } from './config/env';
 import { logger } from './config/logger';
 import { globalLimiter } from './middleware/rateLimit';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
@@ -46,8 +46,9 @@ export function createApp() {
   app.use(
     cors({
       origin(origin, callback) {
-        // Same-origin / server-to-server requests have no Origin header.
-        if (!origin || env.corsOrigins.includes(origin)) return callback(null, true);
+        // Server-to-server requests have no Origin header. Browsers add one to every POST/PATCH/DELETE
+        // (even same-origin) and the Vercel rewrite forwards it, so the frontend's own origin must be listed.
+        if (!origin || env.corsOrigins.includes(normalizeOrigin(origin))) return callback(null, true);
         callback(AppError.forbidden('Origin not allowed', 'CORS_BLOCKED'));
       },
       credentials: true,

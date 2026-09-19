@@ -14,6 +14,9 @@ healthRouter.get('/', (_req, res) => {
       uptime: Math.round(process.uptime()),
       timestamp: new Date().toISOString(),
       environment: env.NODE_ENV,
+      // Render injects RENDER_GIT_COMMIT; lets operators confirm which build is live.
+      commit: (process.env.RENDER_GIT_COMMIT ?? 'local').slice(0, 7),
+      corsOrigins: env.corsOrigins,
       services: {
         database: dbUp ? 'up' : 'down',
         storage: env.cloudinaryConfigured ? 'configured' : 'not_configured',

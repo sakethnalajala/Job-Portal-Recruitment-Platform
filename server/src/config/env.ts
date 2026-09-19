@@ -98,7 +98,15 @@ export function normalizeOrigin(value: string): string {
 }
 const uniqueOrigins = (values: string[]) => [...new Set(values.map(normalizeOrigin).filter(Boolean))];
 
-const resolvedClientUrl = (parsed.data.CLIENT_URL ?? (parsed.data.NODE_ENV === 'production' ? PRODUCTION_CLIENT_URL : DEV_CLIENT_URL)).replace(/\/+$/, '');
+const isProduction = parsed.data.NODE_ENV === 'production';
+const isLocalhost = (url: string) => /^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?/i.test(url);
+// A localhost CLIENT_URL in production is always a copy-paste of the dev .env (Render/Vercel
+// cannot reach it); fall back to the real site rather than block every browser request.
+const configuredClientUrl = parsed.data.CLIENT_URL?.replace(/\/+$/, '');
+const resolvedClientUrl = configuredClientUrl && !(isProduction && isLocalhost(configuredClientUrl)) ? configuredClientUrl : isProduction ? PRODUCTION_CLIENT_URL : DEV_CLIENT_URL;
+export const clientUrlWarning = isProduction && configuredClientUrl && isLocalhost(configuredClientUrl)
+  ? `CLIENT_URL=${configuredClientUrl} is a localhost address; using ${PRODUCTION_CLIENT_URL} instead. Set CLIENT_URL to the deployed frontend.`
+  : null;
 
 export const env = {
   ...parsed.data,
@@ -108,6 +116,9 @@ export const env = {
   isTest: parsed.data.NODE_ENV === 'test',
   corsOrigins: uniqueOrigins([
     resolvedClientUrl,
+    // The deployed frontend is always allowed in production, even if CLIENT_URL points elsewhere
+    // (e.g. a custom domain) — it is this app's own site, not a third party.
+    ...(isProduction ? [PRODUCTION_CLIENT_URL] : []),
     ...(parsed.data.CORS_EXTRA_ORIGINS?.split(',') ?? []),
   ]),
   cloudinaryConfigured: Boolean(
